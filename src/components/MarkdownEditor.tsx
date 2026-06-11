@@ -9,7 +9,7 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
       value={value}
       onChange={(e) => onChange(e.target.value)}
       spellCheck={false}
-      className="h-full w-full resize-none border-0 bg-white p-4 font-mono text-sm leading-relaxed text-slate-800 outline-none focus:ring-0"
+      className="h-full w-full resize-none border-0 bg-zinc-50/50 p-5 font-mono text-[13px] leading-relaxed text-zinc-800 outline-none focus:bg-white focus:ring-0"
       placeholder="Digite ou cole seu Markdown aqui..."
       aria-label="Editor Markdown"
     />

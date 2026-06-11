@@ -10,4 +10,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
+  optimizeDeps: {
+    include: [
+      'html-to-pdfmake',
+      'pdfmake/build/pdfmake',
+      'pdfmake/build/vfs_fonts',
+    ],
+  },
 });
