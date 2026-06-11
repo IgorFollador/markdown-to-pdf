@@ -1,17 +1,14 @@
-import { forwardRef } from 'react';
-
 type MarkdownPreviewProps = {
   html: string;
 };
 
-export const MarkdownPreview = forwardRef<HTMLDivElement, MarkdownPreviewProps>(
-  function MarkdownPreview({ html }, ref) {
-    return (
+export function MarkdownPreview({ html }: MarkdownPreviewProps) {
+  return (
+    <div className="h-full overflow-auto bg-zinc-50/30 p-4 md:p-6">
       <div
-        ref={ref}
-        className="markdown-preview h-full overflow-auto bg-white p-6"
+        className="markdown-preview mx-auto max-w-2xl rounded-lg bg-white p-6 shadow-sm ring-1 ring-zinc-200/60 md:p-8"
         dangerouslySetInnerHTML={{ __html: html }}
       />
-    );
-  }
-);
+    </div>
+  );
+}

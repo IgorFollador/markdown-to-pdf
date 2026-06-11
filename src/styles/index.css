@@ -4,13 +4,24 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-zinc-100 text-zinc-900 antialiased;
   }
 }
 
 @layer components {
   .markdown-preview {
-    @apply prose prose-slate max-w-none prose-headings:font-semibold prose-pre:bg-slate-900 prose-pre:text-slate-100;
+    @apply prose prose-zinc max-w-none
+      prose-headings:font-semibold prose-headings:tracking-tight
+      prose-h1:text-2xl prose-h1:mb-3 prose-h1:mt-0
+      prose-h2:text-lg prose-h2:mt-6 prose-h2:mb-2
+      prose-h3:text-base prose-h3:mt-4 prose-h3:mb-1
+      prose-p:my-2 prose-p:leading-relaxed
+      prose-li:my-0.5
+      prose-blockquote:border-l-2 prose-blockquote:border-zinc-300
+      prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-zinc-600
+      prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+      prose-hr:my-6
+      prose-pre:bg-zinc-900 prose-pre:text-zinc-100;
   }
 
   .markdown-preview pre code.hljs {
