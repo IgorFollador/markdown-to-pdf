@@ -7,7 +7,7 @@ Conversor gratuito de Markdown para PDF com editor, preview ao vivo e exportaç�
 - React 19 + TypeScript + Vite
 - markdown-it + GFM (tabelas, task lists, strikethrough)
 - highlight.js (syntax highlighting)
-- html2pdf.js (exportação client-side)
+- pdfmake + html-to-pdfmake (exportação client-side)
 - Tailwind CSS
 
 ## Instalação
@@ -42,21 +42,21 @@ npm run preview
 
 ## Deploy no GitHub Pages
 
-1. Crie o repositório no GitHub e faça push da branch `main`
-2. Em **Settings → Pages**, configure a fonte como branch `gh-pages` (criada automaticamente pelo workflow)
-3. O workflow em `.github/workflows/deploy.yml` publica a cada push em `main`
+1. Faça push da branch `main`
+2. Em **Settings → Pages → Build and deployment**, defina **Source** como **GitHub Actions** (não use branch `main` nem `gh-pages` manualmente)
+3. O workflow em `.github/workflows/deploy.yml` faz build e publica o conteúdo de `dist/` a cada push em `main`
 
 ### Domínio customizado
 
-O arquivo `public/CNAME` define `md.waykey.com.br`. Ajuste para seu domínio.
+O arquivo `public/CNAME` define `md-to-pdf.waykey.com.br`.
 
 **DNS:**
 
-| Tipo  | Nome | Valor                        |
-| ----- | ---- | ---------------------------- |
-| CNAME | md   | `waykey-technology.github.io` |
+| Tipo  | Nome          | Valor                   |
+| ----- | ------------- | ----------------------- |
+| CNAME | md-to-pdf     | `igorfollador.github.io` |
 
-No GitHub: **Settings → Pages → Custom domain** → ative **Enforce HTTPS**.
+No GitHub: **Settings → Pages → Custom domain** → `md-to-pdf.waykey.com.br` → ative **Enforce HTTPS**.
 
 ## Privacidade
 
@@ -64,6 +64,6 @@ Todo o processamento (renderização e PDF) acontece localmente no seu navegador
 
 ## Limitações
 
-- PDF gerado via html2pdf.js — adequado para documentos comuns, não é renderização print-grade (Puppeteer)
+- PDF gerado via pdfmake — adequado para documentos comuns; tabelas e imagens complexas podem ter limitações
 - Imagens externas no PDF dependem de CORS do host de origem
 - LaTeX/math não suportado no MVP
