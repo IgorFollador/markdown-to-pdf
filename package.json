@@ -3,6 +3,17 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "Conversor open-source e gratuito de Markdown para PDF com editor, preview ao vivo e exportação 100% no navegador.",
+  "author": "Igor Follador <igor.follador@waykey.com.br> (https://github.com/IgorFollador)",
+  "license": "MIT",
+  "homepage": "https://md-to-pdf.waykey.com.br",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IgorFollador/markdown-to-pdf.git"
+  },
+  "bugs": {
+    "url": "https://github.com/IgorFollador/markdown-to-pdf/issues"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

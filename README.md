@@ -67,3 +67,13 @@ Todo o processamento (renderização e PDF) acontece localmente no seu navegador
 - PDF gerado via pdfmake — adequado para documentos comuns; tabelas e imagens complexas podem ter limitações
 - Imagens externas no PDF dependem de CORS do host de origem
 - LaTeX/math não suportado no MVP
+
+## Autor
+
+Criado e mantido por **Igor Follador**.
+
+- GitHub: [@IgorFollador](https://github.com/IgorFollador)
+
+## Licença
+
+Este projeto é open-source sob a [licença MIT](LICENSE).
