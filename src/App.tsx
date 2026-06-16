@@ -123,18 +123,7 @@ function App() {
       </main>
 
       <footer className="border-t border-zinc-200/80 bg-zinc-50/80 px-4 py-3">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 text-xs text-zinc-500 sm:flex-row">
-          <span>
-            Criado por{' '}
-            <a
-              href="https://github.com/IgorFollador"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-zinc-700 underline decoration-zinc-300 underline-offset-2 transition hover:text-zinc-900 hover:decoration-zinc-500"
-            >
-              Igor Follador
-            </a>
-          </span>
+        <div className="mx-auto flex max-w-7xl justify-center text-xs text-zinc-500">
           <a
             href="https://github.com/IgorFollador/markdown-to-pdf"
             target="_blank"
