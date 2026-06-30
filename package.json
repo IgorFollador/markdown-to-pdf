@@ -24,9 +24,11 @@
     "dompurify": "^3.2.6",
     "highlight.js": "^11.11.1",
     "html-to-pdfmake": "^2.5.33",
+    "html2pdf.js": "^0.14.0",
     "markdown-it": "^14.1.0",
     "markdown-it-multimd-table": "^4.2.3",
     "markdown-it-task-lists": "^2.1.1",
+    "mermaid": "^11.15.0",
     "pdfmake": "^0.3.10",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

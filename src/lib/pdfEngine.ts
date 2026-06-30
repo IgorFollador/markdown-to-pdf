@@ -1,6 +1,8 @@
 import htmlToPdfmake from 'html-to-pdfmake';
 import pdfMake from 'pdfmake/build/pdfmake';
 import vfs from 'pdfmake/build/vfs_fonts';
+import { HLJS_PDF_PRE_FILL, HLJS_PDF_PRE_TEXT } from './hljsPdf';
+import { prepareHtmlForPdf } from './pdfPrepare';
 
 pdfMake.vfs = vfs;
 
@@ -22,6 +24,18 @@ const BLOCK_NODES = new Set([
   'DIV',
 ]);
 
+const TABLE_LAYOUT = {
+  hLineWidth: (i: number, node: { table: { body: unknown[] } }) =>
+    i === 0 || i === node.table.body.length ? 0 : 0.5,
+  vLineWidth: () => 0,
+  hLineColor: () => '#e4e4e7',
+  vLineColor: () => '#e4e4e7',
+  paddingLeft: () => 10,
+  paddingRight: () => 10,
+  paddingTop: () => 6,
+  paddingBottom: () => 6,
+};
+
 const PDF_DEFAULT_STYLES = {
   b: { bold: true },
   strong: { bold: true },
@@ -31,62 +45,76 @@ const PDF_DEFAULT_STYLES = {
   u: { decoration: 'underline' as const },
   a: { color: '#2563eb', decoration: 'underline' as const },
   h1: {
-    fontSize: 20,
+    fontSize: 24,
     bold: true,
-    margin: [0, 0, 0, 6],
+    margin: [0, 0, 0, 10],
     marginBottom: '',
+    color: '#18181b',
   },
   h2: {
-    fontSize: 15,
+    fontSize: 18,
+    bold: true,
+    margin: [0, 18, 0, 8],
+    marginBottom: '',
+    color: '#18181b',
+  },
+  h3: {
+    fontSize: 16,
+    bold: true,
+    margin: [0, 14, 0, 6],
+    marginBottom: '',
+    color: '#18181b',
+  },
+  h4: {
+    fontSize: 14,
+    bold: true,
+    margin: [0, 12, 0, 4],
+    marginBottom: '',
+    color: '#18181b',
+  },
+  h5: {
+    fontSize: 13,
     bold: true,
     margin: [0, 10, 0, 4],
     marginBottom: '',
-  },
-  h3: {
-    fontSize: 13,
-    bold: true,
-    margin: [0, 8, 0, 3],
-    marginBottom: '',
-  },
-  h4: {
-    fontSize: 12,
-    bold: true,
-    margin: [0, 6, 0, 3],
-    marginBottom: '',
-  },
-  h5: {
-    fontSize: 11,
-    bold: true,
-    margin: [0, 6, 0, 2],
-    marginBottom: '',
+    color: '#18181b',
   },
   h6: {
-    fontSize: 11,
+    fontSize: 12,
     bold: true,
-    margin: [0, 6, 0, 2],
+    margin: [0, 10, 0, 4],
     marginBottom: '',
+    color: '#18181b',
   },
-  p: { margin: [0, 0, 0, 6], marginBottom: '' },
-  ul: { margin: [0, 0, 0, 6], marginBottom: '', marginLeft: '' },
-  ol: { margin: [0, 0, 0, 6], marginBottom: '', marginLeft: '' },
-  li: { margin: [0, 0, 0, 2], marginBottom: '', marginLeft: '' },
+  p: { margin: [0, 0, 0, 10], marginBottom: '', lineHeight: 1.65 },
+  ul: { margin: [0, 0, 0, 10], marginBottom: '', marginLeft: 14 },
+  ol: { margin: [0, 0, 0, 10], marginBottom: '', marginLeft: 14 },
+  li: { margin: [0, 0, 0, 4], marginBottom: '', lineHeight: 1.65 },
   blockquote: {
     italics: true,
-    color: '#475569',
-    margin: [12, 2, 0, 6],
+    color: '#52525b',
+    margin: [0, 4, 0, 10],
     marginBottom: '',
   },
   pre: {
     font: 'Roboto',
     fontSize: 9,
-    margin: [0, 2, 0, 6],
+    margin: [0, 4, 0, 10],
     marginBottom: '',
-    fillColor: '#f1f5f9',
+    fillColor: HLJS_PDF_PRE_FILL,
+    color: HLJS_PDF_PRE_TEXT,
+    lineHeight: 1.5,
   },
-  code: { font: 'Roboto', fontSize: 10, fillColor: '#f1f5f9' },
-  hr: { margin: [0, 8, 0, 8], marginBottom: '' },
-  table: { margin: [0, 2, 0, 6], marginBottom: '' },
-  th: { bold: true, fillColor: '#f1f5f9' },
+  code: {
+    font: 'Roboto',
+    fontSize: 10,
+    fillColor: '#f4f4f5',
+    color: '#18181b',
+  },
+  hr: { margin: [0, 16, 0, 16], marginBottom: '' },
+  table: { margin: [0, 6, 0, 10], marginBottom: '' },
+  th: { bold: true, fillColor: '#fafafa', color: '#18181b' },
+  td: { fillColor: '#ffffff', color: '#18181b' },
 };
 
 type PdfNode = {
@@ -95,6 +123,8 @@ type PdfNode = {
   ul?: PdfNode[];
   ol?: PdfNode[];
   stack?: PdfNode[];
+  table?: { body?: unknown[][] };
+  layout?: unknown;
   margin?: unknown;
   marginBottom?: unknown;
   marginTop?: unknown;
@@ -129,6 +159,35 @@ function stripInlineMargins(node: PdfNode): PdfNode {
   return node;
 }
 
+function applyTableLayouts(node: unknown): unknown {
+  if (Array.isArray(node)) {
+    return node.map(applyTableLayouts);
+  }
+  if (node && typeof node === 'object') {
+    const pdfNode = node as PdfNode;
+    if (pdfNode.table) {
+      pdfNode.layout = TABLE_LAYOUT;
+    }
+    if (pdfNode.stack) {
+      pdfNode.stack = pdfNode.stack.map((child) => applyTableLayouts(child) as PdfNode);
+    }
+    if (pdfNode.ul) {
+      pdfNode.ul = pdfNode.ul.map((child) => applyTableLayouts(child) as PdfNode);
+    }
+    if (pdfNode.ol) {
+      pdfNode.ol = pdfNode.ol.map((child) => applyTableLayouts(child) as PdfNode);
+    }
+    if (Array.isArray(pdfNode.text)) {
+      pdfNode.text = pdfNode.text.map((child) =>
+        typeof child === 'object' ? (applyTableLayouts(child) as PdfNode) : child
+      );
+    } else if (pdfNode.text && typeof pdfNode.text === 'object') {
+      pdfNode.text = applyTableLayouts(pdfNode.text) as PdfNode;
+    }
+  }
+  return node;
+}
+
 function compactPdfContent(content: unknown): unknown {
   if (Array.isArray(content)) {
     return content.map((item) => compactPdfContent(item));
@@ -137,29 +196,6 @@ function compactPdfContent(content: unknown): unknown {
     return stripInlineMargins(content as PdfNode);
   }
   return content;
-}
-
-function prepareHtmlForPdf(html: string): string {
-  const container = document.createElement('div');
-  container.innerHTML = html;
-
-  container.querySelectorAll('blockquote').forEach((blockquote) => {
-    const paragraph = blockquote.querySelector(':scope > p');
-    if (paragraph && blockquote.children.length === 1) {
-      blockquote.innerHTML = paragraph.innerHTML;
-    }
-    blockquote.setAttribute(
-      'style',
-      'margin-left:12px; color:#475569; font-style:italic; border-left:2px solid #cbd5e1; padding-left:10px;'
-    );
-  });
-
-  container.querySelectorAll('input[type="checkbox"]').forEach((input) => {
-    const checked = input.hasAttribute('checked');
-    input.replaceWith(document.createTextNode(checked ? '☑ ' : '☐ '));
-  });
-
-  return container.innerHTML;
 }
 
 function downloadBlob(blob: Blob, filename: string): void {
@@ -176,9 +212,10 @@ function downloadBlob(blob: Blob, filename: string): void {
 
 export async function createPdfDownload(
   html: string,
-  filename: string
+  filename: string,
+  previewRoot?: HTMLElement | null
 ): Promise<void> {
-  const preparedHtml = prepareHtmlForPdf(html);
+  const preparedHtml = await prepareHtmlForPdf(html, previewRoot);
   const converted = htmlToPdfmake(preparedHtml, {
     window,
     tableAutoSize: true,
@@ -202,18 +239,18 @@ export async function createPdfDownload(
       ? (converted as { images?: Record<string, string> }).images
       : undefined;
 
-  const content = compactPdfContent(rawContent);
+  const content = applyTableLayouts(compactPdfContent(rawContent));
 
   const docDefinition = {
     content,
     images,
     pageSize: 'A4' as const,
-    pageMargins: [48, 52, 48, 52] as [number, number, number, number],
+    pageMargins: [52, 56, 52, 56] as [number, number, number, number],
     defaultStyle: {
       font: 'Roboto',
-      fontSize: 11,
-      lineHeight: 1.35,
-      color: '#1e293b',
+      fontSize: 14,
+      lineHeight: 1.65,
+      color: '#18181b',
     },
   };
 

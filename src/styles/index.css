@@ -29,11 +29,44 @@
   }
 
   .markdown-preview table {
-    @apply w-full;
+    @apply w-full border-collapse;
+  }
+
+  .markdown-preview th,
+  .markdown-preview td {
+    @apply border-b border-zinc-200 px-3 py-2 text-left;
+  }
+
+  .markdown-preview th {
+    @apply bg-zinc-50 font-semibold;
+  }
+
+  .markdown-preview .mermaid,
+  .markdown-preview .mermaid-rendered {
+    @apply my-4 overflow-x-auto rounded-lg bg-zinc-900 p-4;
   }
 
   .markdown-preview input[type='checkbox'] {
     @apply mr-2 accent-blue-600;
     pointer-events: none;
+  }
+
+  .markdown-preview.pdf-exporting {
+    @apply max-w-none rounded-none shadow-none ring-0;
+  }
+
+  .markdown-preview table,
+  .markdown-preview pre,
+  .markdown-preview blockquote,
+  .markdown-preview .mermaid-rendered {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .markdown-preview h1,
+  .markdown-preview h2,
+  .markdown-preview h3 {
+    break-after: avoid;
+    page-break-after: avoid;
   }
 }

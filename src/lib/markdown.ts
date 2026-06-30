@@ -49,10 +49,22 @@ const md = new MarkdownIt({
 
 md.inline.ruler.before('emphasis', 'strikethrough', strikethrough);
 
+const defaultFence = md.renderer.rules.fence!;
+md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+  const lang = token.info.trim().split(/\s+/)[0];
+  if (lang === 'mermaid') {
+    const content = token.content.trim();
+    const escaped = md.utils.escapeHtml(content);
+    return `<div class="mermaid" data-source="${escaped}">${escaped}</div>\n`;
+  }
+  return defaultFence(tokens, idx, options, env, self);
+};
+
 export function renderMarkdown(source: string): string {
   const raw = md.render(source);
   return DOMPurify.sanitize(raw, {
     ADD_TAGS: ['input'],
-    ADD_ATTR: ['type', 'checked', 'disabled'],
+    ADD_ATTR: ['type', 'checked', 'disabled', 'data-source'],
   });
 }

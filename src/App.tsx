@@ -1,8 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { AppIcon } from './components/AppIcon';
 import { DownloadModal } from './components/DownloadModal';
 import { MarkdownEditor } from './components/MarkdownEditor';
-import { MarkdownPreview } from './components/MarkdownPreview';
+import {
+  MarkdownPreview,
+  type MarkdownPreviewHandle,
+} from './components/MarkdownPreview';
 import { SplitPane } from './components/SplitPane';
 import { Toolbar } from './components/Toolbar';
 import { EXAMPLE_MARKDOWN } from './content/exampleMarkdown';
@@ -15,6 +18,7 @@ function App() {
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
   const [isExporting, setIsExporting] = useState(false);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const previewRef = useRef<MarkdownPreviewHandle>(null);
 
   const html = useMemo(() => renderMarkdown(markdown), [markdown]);
 
@@ -40,7 +44,13 @@ function App() {
     setFilename(chosenFilename);
     setIsExporting(true);
     try {
-      await exportPdf(html, chosenFilename);
+      if (mobileTab === 'editor') {
+        setMobileTab('preview');
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+      await previewRef.current?.ensureRendered();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await exportPdf(html, chosenFilename, previewRef.current?.getRoot());
       setDownloadModalOpen(false);
     } catch (error) {
       console.error('PDF export failed:', error);
@@ -117,7 +127,7 @@ function App() {
           <SplitPane
             mobileTab={mobileTab}
             left={<MarkdownEditor value={markdown} onChange={setMarkdown} />}
-            right={<MarkdownPreview html={html} />}
+            right={<MarkdownPreview ref={previewRef} html={html} />}
           />
         </div>
       </main>

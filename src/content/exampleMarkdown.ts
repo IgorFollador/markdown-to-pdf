@@ -19,6 +19,16 @@ function greet(name: string): string {
 }
 \`\`\`
 
+## Flowchart (Mermaid)
+
+\`\`\`mermaid
+flowchart LR
+    A[Foto enviada] --> B[IA lê a imagem]
+    B --> C{Passou em todas as regras?}
+    C -->|Sim| D[Aprovada automaticamente]
+    C -->|Não| E[Fila de revisão manual]
+\`\`\`
+
 ## Tabela
 
 | Recurso        | Suportado |
@@ -27,6 +37,7 @@ function greet(name: string): string {
 | Listas         | Sim       |
 | Código         | Sim       |
 | Tabelas GFM    | Sim       |
+| Mermaid        | Sim       |
 | Task lists     | Sim       |
 
 ## Task list
